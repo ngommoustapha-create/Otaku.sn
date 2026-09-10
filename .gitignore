@@ -1,0 +1,16 @@
+# Dépendances
+node_modules/
+frontend/node_modules/
+
+# Builds
+frontend/build/
+__pycache__/
+*.pyc
+
+# Secrets — ne jamais committer de vraies valeurs
+backend/.env
+frontend/.env.local
+.vercel
+
+# Système
+.DS_Store
