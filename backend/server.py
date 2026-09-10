@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import hashlib
 import logging
 import os
 import uuid
@@ -30,40 +31,36 @@ ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@otaku.sn").lower()
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Otaku@2026")
 DEFAULT_WHATSAPP = os.environ.get("WHATSAPP_NUMBER", "221781920947")
 
-STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https://integrations.emergentagent.com"
-STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
-EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
 APP_NAME = "otaku-sn"
-storage_key = None
+
+CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME")
+CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY")
+CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET")
 
 
-def init_storage(force: bool = False):
-    global storage_key
-    if storage_key and not force:
-        return storage_key
-    resp = requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
-    resp.raise_for_status()
-    storage_key = resp.json()["storage_key"]
-    return storage_key
-
-
-def put_object(path: str, data: bytes, content_type: str) -> dict:
-    key = init_storage()
-    resp = requests.put(
-        f"{STORAGE_URL}/objects/{path}",
-        headers={"X-Storage-Key": key, "Content-Type": content_type},
-        data=data,
-        timeout=120,
+def cloudinary_upload(data: bytes, folder: str) -> str:
+    """Upload an image to Cloudinary (signed upload) and return its public URL."""
+    if not (CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET):
+        raise HTTPException(
+            status_code=500,
+            detail="Stockage d'images non configuré (variables CLOUDINARY_* manquantes).",
+        )
+    timestamp = str(int(datetime.now(timezone.utc).timestamp()))
+    params_to_sign = f"folder={APP_NAME}/{folder}&timestamp={timestamp}"
+    signature = hashlib.sha1((params_to_sign + CLOUDINARY_API_SECRET).encode()).hexdigest()
+    resp = requests.post(
+        f"https://api.cloudinary.com/v1_1/{CLOUDINARY_CLOUD_NAME}/image/upload",
+        data={
+            "api_key": CLOUDINARY_API_KEY,
+            "timestamp": timestamp,
+            "signature": signature,
+            "folder": f"{APP_NAME}/{folder}",
+        },
+        files={"file": data},
+        timeout=60,
     )
     resp.raise_for_status()
-    return resp.json()
-
-
-def get_object(path: str):
-    key = init_storage()
-    resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
-    resp.raise_for_status()
-    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+    return resp.json()["secure_url"]
 
 
 app = FastAPI()
@@ -203,18 +200,16 @@ async def handle_upload(file: UploadFile, folder: str) -> dict:
     data = await file.read()
     if len(data) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=400, detail="Image trop lourde (max 10 Mo)")
-    ext = file.filename.rsplit(".", 1)[-1].lower() if file.filename and "." in file.filename else "jpg"
-    path = f"{APP_NAME}/{folder}/{uuid.uuid4()}.{ext}"
-    put_object(path, data, file.content_type)
+    url = cloudinary_upload(data, folder)
     await db.files.insert_one({
         "id": str(uuid.uuid4()),
-        "storage_path": path,
+        "storage_path": url,
         "original_filename": file.filename,
         "content_type": file.content_type,
         "is_deleted": False,
         "created_at": datetime.now(timezone.utc).isoformat(),
     })
-    return {"path": path}
+    return {"path": url}
 
 
 @api_router.post("/admin/upload")
@@ -225,22 +220,6 @@ async def admin_upload(file: UploadFile = File(...), admin: dict = Depends(get_c
 @api_router.post("/uploads/reference")
 async def reference_upload(file: UploadFile = File(...)):
     return await handle_upload(file, "references")
-
-
-@api_router.get("/files/{path:path}")
-async def serve_file(path: str):
-    try:
-        content, content_type = get_object(path)
-    except requests.HTTPError as e:
-        if e.response is not None and e.response.status_code == 404:
-            try:
-                init_storage(force=True)
-                content, content_type = get_object(path)
-            except Exception:
-                raise HTTPException(status_code=404, detail="Fichier introuvable")
-        else:
-            raise HTTPException(status_code=502, detail="Stockage indisponible")
-    return Response(content=content, media_type=content_type, headers={"Cache-Control": "public, max-age=86400"})
 
 
 # ---------- Config & stats ----------
@@ -449,11 +428,6 @@ async def startup():
         {"id": "global"}, {"$setOnInsert": {"id": "global", "whatsapp_number": DEFAULT_WHATSAPP}}, upsert=True
     )
     await db.stats.update_one({"id": "global"}, {"$setOnInsert": {"id": "global", "checkout_clicks": 0}}, upsert=True)
-    try:
-        init_storage()
-        logger.info("Storage initialized")
-    except Exception as e:
-        logger.error(f"Storage init failed: {e}")
 
 
 @app.on_event("shutdown")
