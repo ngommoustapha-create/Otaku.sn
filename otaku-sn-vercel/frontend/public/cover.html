@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px; background: #08090C; overflow: hidden; position: relative;
+    font-family: "Barlow Condensed", sans-serif; color: #F7F8F8;
+  }
+  .glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 55% 60% at 78% 108%, rgba(255,51,51,0.22), transparent 65%),
+                radial-gradient(ellipse 40% 45% at 8% -10%, rgba(229,169,60,0.10), transparent 70%);
+  }
+  .kanji {
+    position: absolute; right: -30px; top: -60px; font-weight: 900; font-size: 560px; line-height: .8;
+    color: transparent; -webkit-text-stroke: 2px rgba(143,150,168,0.20); letter-spacing: -20px;
+  }
+  .frame { position: absolute; inset: 26px; border: 2px solid #222738; }
+  .corner { position: absolute; width: 26px; height: 26px; border-color: #FF3333; border-style: solid; }
+  .content { position: absolute; inset: 0; padding: 74px 84px; display: flex; flex-direction: column; }
+  .brandrow { display: flex; align-items: center; gap: 18px; }
+  .wordmark { font-weight: 900; font-size: 54px; letter-spacing: 2px; }
+  .tag { font-family: "IBM Plex Mono", monospace; font-size: 17px; color: #575D6E; letter-spacing: 6px; }
+  h1 { font-weight: 900; text-transform: uppercase; line-height: .88; font-size: 128px; margin-top: 46px; letter-spacing: -2px; }
+  .red { color: #FF3333; }
+  .outline { color: transparent; -webkit-text-stroke: 2px rgba(247,248,248,0.55); }
+  .pills { display: flex; gap: 12px; margin-top: 40px; }
+  .pill {
+    font-family: "IBM Plex Mono", monospace; font-size: 16px; letter-spacing: 3px; text-transform: uppercase;
+    border: 1.5px solid #222738; color: #8F96A8; padding: 9px 18px;
+  }
+  .pill.redpill { border-color: #FF3333; color: #FF3333; }
+  .foot {
+    margin-top: auto; display: flex; justify-content: space-between; align-items: center;
+    font-family: "IBM Plex Mono", monospace; font-size: 15px; letter-spacing: 3px; color: #575D6E; text-transform: uppercase;
+  }
+  .foot .wa { color: #25D366; }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="kanji">オタク</div>
+  <div class="frame"></div>
+  <span class="corner" style="top:26px;left:26px;border-width:3px 0 0 3px;"></span>
+  <span class="corner" style="top:26px;right:26px;border-width:3px 3px 0 0;"></span>
+  <span class="corner" style="bottom:26px;left:26px;border-width:0 0 3px 3px;"></span>
+  <span class="corner" style="bottom:26px;right:26px;border-width:0 3px 3px 0;"></span>
+  <div class="content">
+    <div class="brandrow">
+      <svg width="60" height="60" viewBox="0 0 512 512">
+        <rect width="512" height="512" fill="#08090C"/>
+        <rect x="18" y="18" width="476" height="476" fill="none" stroke="#FF3333" stroke-width="22"/>
+        <text x="256" y="318" font-family="Arial Black, Arial, sans-serif" font-size="240" font-weight="900" fill="#FF3333" text-anchor="middle">オ</text>
+        <text x="256" y="428" font-family="Arial, sans-serif" font-size="54" font-weight="900" letter-spacing="8" fill="#F7F8F8" text-anchor="middle">OTAKU.SN</text>
+      </svg>
+      <span class="wordmark">OTAKU<span class="red">.SN</span></span>
+      <span class="tag">[KLK] — 14.1524° N, 16.0726° W</span>
+    </div>
+    <h1>Anime <span class="red">×</span> Sacré<br /><span class="outline">Sur-mesure</span></h1>
+    <div class="pills">
+      <span class="pill">Anime / Manga</span>
+      <span class="pill">Autres</span>
+      <span class="pill redpill">Sur-mesure</span>
+    </div>
+    <div class="foot">
+      <span>T-shirts 1000–1200 GSM — Kaolack, Sénégal</span>
+      <span class="wa">Commande directe WhatsApp · Livraison nationale</span>
+    </div>
+  </div>
+</body>
+</html>
