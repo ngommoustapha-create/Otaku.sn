@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 220 22% 4%;
+        --foreground: 210 12% 97%;
+        --card: 224 24% 10%;
+        --card-foreground: 210 12% 97%;
+        --popover: 224 24% 8%;
+        --popover-foreground: 210 12% 97%;
+        --primary: 0 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 225 26% 15%;
+        --secondary-foreground: 210 12% 97%;
+        --muted: 225 26% 15%;
+        --muted-foreground: 220 12% 62%;
+        --accent: 225 26% 17%;
+        --accent-foreground: 210 12% 97%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 226 25% 18%;
+        --input: 226 25% 18%;
+        --ring: 0 100% 60%;
+        --chart-1: 0 100% 60%;
+        --chart-2: 39 76% 57%;
+        --chart-3: 152 60% 45%;
+        --chart-4: 220 70% 55%;
+        --chart-5: 280 65% 60%;
+        --radius: 0.25rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+    }
+    ::selection {
+        background: #ff3333;
+        color: #fff;
+    }
+}
+
+.font-display {
+    font-family: "Barlow Condensed", "DM Sans", sans-serif;
+}
+
+.mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.text-outline {
+    -webkit-text-stroke: 1.5px rgba(143, 150, 168, 0.22);
+    color: transparent;
+}
+
+.grain-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.6'/></svg>");
+}
+
+@keyframes marquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-marquee {
+    animation: marquee 45s linear infinite;
+}
+
+@keyframes pulse-glow {
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+html.lenis,
+html.lenis body {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #08090c;
+}
+::-webkit-scrollbar-thumb {
+    background: #222738;
+    border: 2px solid #08090c;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ff3333;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+
+    [data-debug-wrapper="true"] > * {
+        margin-left: inherit;
+        margin-right: inherit;
+        margin-top: inherit;
+        margin-bottom: inherit;
+        padding-left: inherit;
+        padding-right: inherit;
+        padding-top: inherit;
+        padding-bottom: inherit;
+        column-gap: inherit;
+        row-gap: inherit;
+        gap: inherit;
+        border-left-width: inherit;
+        border-right-width: inherit;
+        border-top-width: inherit;
+        border-bottom-width: inherit;
+        border-left-style: inherit;
+        border-right-style: inherit;
+        border-top-style: inherit;
+        border-bottom-style: inherit;
+        border-left-color: inherit;
+        border-right-color: inherit;
+        border-top-color: inherit;
+        border-bottom-color: inherit;
+    }
+}
