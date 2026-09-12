@@ -24,6 +24,21 @@ const CHAPTERS = [
   { n: "03", t: "Commande WhatsApp", d: "Vous remplissez le panier, vous confirmez sur WhatsApp. Livraison partout au Sénégal, à votre charge." },
 ];
 
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleKeepingFeaturedFirst(products) {
+  const featured = shuffle(products.filter((p) => p.is_featured));
+  const rest = shuffle(products.filter((p) => !p.is_featured));
+  return [...featured, ...rest];
+}
+
 export default function Catalog() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState("Tous");
@@ -38,7 +53,7 @@ export default function Catalog() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/products").then((r) => setProducts(r.data)).catch(() => {});
+    api.get("/products").then((r) => setProducts(shuffleKeepingFeaturedFirst(r.data))).catch(() => {});
     api
       .get("/config")
       .then((r) => {
