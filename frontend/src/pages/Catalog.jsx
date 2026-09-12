@@ -27,6 +27,7 @@ const CHAPTERS = [
 export default function Catalog() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState("Tous");
+  const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
@@ -59,10 +60,18 @@ export default function Catalog() {
     if (routeProductId) navigate("/", { replace: true });
   };
 
-  const filtered = useMemo(
-    () => (category === "Tous" ? products : products.filter((p) => p.category === category)),
-    [products, category]
-  );
+  const filtered = useMemo(() => {
+    let list = category === "Tous" ? products : products.filter((p) => p.category === category);
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [products, category, search]);
 
   const openCustom = () => setCustomOpen(true);
 
@@ -80,28 +89,42 @@ export default function Catalog() {
               Nos T-Shirts
             </h2>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c.key}
-                data-testid={c.testid}
-                onClick={() => setCategory(c.key)}
-                className={`mono text-[11px] uppercase tracking-[0.15em] px-4 py-2 border transition-colors ${
-                  category === c.key
-                    ? "border-[#FF3333] bg-[#FF3333] text-white"
-                    : "border-[#222738] text-[#8F96A8] hover:border-[#8F96A8] hover:text-white"
-                }`}
-              >
-                {c.key}
-              </button>
-            ))}
+          <div className="flex flex-col items-end gap-3">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Rechercher un produit..."
+              data-testid="catalog-search-input"
+              className="w-full sm:w-64 bg-transparent border border-[#222738] px-4 py-2 text-sm text-white placeholder:text-[#575D6E] focus:outline-none focus:border-[#FF3333]"
+            />
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.key}
+                  data-testid={c.testid}
+                  onClick={() => setCategory(c.key)}
+                  className={`mono text-[11px] uppercase tracking-[0.15em] px-4 py-2 border transition-colors ${
+                    category === c.key
+                      ? "border-[#FF3333] bg-[#FF3333] text-white"
+                      : "border-[#222738] text-[#8F96A8] hover:border-[#8F96A8] hover:text-white"
+                  }`}
+                >
+                  {c.key}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {filtered.length === 0 ? (
           <div data-testid="catalog-empty-state" className="border border-dashed border-[#222738] py-20 text-center">
-            <p className="font-display text-2xl font-bold uppercase text-[#575D6E]">Aucun produit pour le moment</p>
-            <p className="text-sm text-[#8F96A8] mt-2">Revenez bientôt — de nouveaux drops arrivent.</p>
+            <p className="font-display text-2xl font-bold uppercase text-[#575D6E]">
+              {search.trim() ? "Aucun résultat pour cette recherche" : "Aucun produit pour le moment"}
+            </p>
+            <p className="text-sm text-[#8F96A8] mt-2">
+              {search.trim() ? "Essaie un autre mot-clé." : "Revenez bientôt — de nouveaux drops arrivent."}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
